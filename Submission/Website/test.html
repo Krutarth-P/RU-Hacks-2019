@@ -1,0 +1,201 @@
+<html>
+    <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+        <script>
+            function indexOfMax(arr) {
+                if (arr.length === 0) {
+                    return -1;
+                }
+
+                var max = arr[0];
+                var maxIndex = 0;
+
+                for (var i = 1; i < arr.length; i++) {
+                    if (arr[i] > max) {
+                        maxIndex = i;
+                        max = arr[i];
+                    }
+                }
+
+                return maxIndex;
+            }
+
+            function encodeImageFileAsURL(element) {
+                var file = element[0];
+                var reader = new FileReader();
+                reader.onloadend = function() {
+                    console.log('RESULT', reader.result)
+                    //return reader.result;
+                    var xhttp = new XMLHttpRequest();
+                    xhttp.onreadystatechange = function() {
+                        if (this.readyState == 4 && this.status == 200) {
+                            numbers = [];
+                            numberStrings = this.responseText.split("[")[2].split(",");
+                            numberStrings.forEach(function(entry) {
+                                numbers.push(parseFloat(entry));
+                            });
+
+                            document.getElementById("goodPizza").style.display = "none";
+                            document.getElementById("burntPizza").style.display = "none";
+                            document.getElementById("thickCrustPizza").style.display = "none";
+                            document.getElementById("uncookedPizza").style.display = "none";
+                            document.getElementById("unevenToppingsPizza").style.display = "none";
+
+                            if(indexOfMax(numbers) == 0){
+                                //alert("Good Pizza")
+                                document.getElementById("goodPizza").style.display = "inline";
+                            }
+                            if(indexOfMax(numbers) == 1){
+                                //alert("Overcooked Pizza")
+                                document.getElementById("burntPizza").style.display = "inline";
+                            }
+                            if(indexOfMax(numbers) == 2){
+                                //alert("Burnt Pizza")
+                                document.getElementById("thickCrustPizza").style.display = "inline";
+                            }
+                            if(indexOfMax(numbers) == 3){
+                                //alert("Uncooked Pizza")
+                                document.getElementById("uncookedPizza").style.display = "inline";
+                            }
+                            if(indexOfMax(numbers) == 4){
+                                //alert("Uneven Toppings Pizza")
+                                document.getElementById("unevenToppingsPizza").style.display = "inline";
+                            }
+                        }
+                    };
+                    xhttp.open("POST", "http://127.0.0.1:5000/api/predict", true);
+                    xhttp.setRequestHeader("Content-type", "application/json");
+                    xhttp.send(JSON.stringify({ 'x': reader.result.substring(23, reader.result.length) }));
+                }
+                reader.readAsDataURL(file);
+                //return file;
+            }
+
+            $(function(){
+            $('#submitUpload').on('click', function(){
+                /*var file = document.getElementById("upload").files[0];
+                var form = new FormData();
+                //form.append("x", file);
+                form.append('json', JSON.stringify({ 'x': file }));
+
+                var settings = {
+                "async": true,
+                "crossDomain": true,
+                "url": "http://127.0.0.1:5000/api/predict",
+                "method": "POST",
+                "processData": false,
+                "contentType": false,
+                "mimeType": "multipart/form-data",
+                "data": form
+                };
+
+                $.ajax(settings).done(function (response) {
+                console.log(response);
+                });
+                */                
+                var file = document.getElementById("upload").files;
+
+                data = encodeImageFileAsURL(file);
+
+                
+            });
+            });
+        </script> <style>
+       
+       input[type=file] {
+        background-color:#008CBA; 
+        color: white; 
+        border: 2px solid #008CBA;
+        border-radius: 4px;
+        padding: 18px 36px;
+        text-align: center;
+        }
+        input[type=file]:hover {
+        background-color: rgb(0, 255, 234);
+        color:black;
+        text-align: center;
+        }
+        input[type=submit]{
+        background-color: green;
+        color:white;
+        border: 3px solid green;
+        border-radius: 4px;
+        padding: 20px 36px;
+        text-align: center;
+        }
+        input[type=submit]:hover {
+        background-color: greenyellow;
+        border: 3px solid green;
+        border-radius: 4px;
+        color:black;
+        text-align: center;
+        }
+        .buttons {
+            flex-wrap: nowrap;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .results{
+            flex-wrap: nowrap;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            align-content: center; 
+        }
+        #goodPizza{
+            display: none;
+            border: 3px solid black;
+            padding: 10px;
+            background-color:greenyellow;
+            border-radius: 4px;
+        }
+        #thickCrustPizza{
+            display: none;
+            border: 3px solid black;
+            padding: 10px;
+            background-color:greenyellow;
+            background-color:greenyellow;
+            border-radius: 4px;
+        }
+        #burntPizza{
+            display: none;
+            border: 3px solid black;
+            padding: 10px;
+            background-color:greenyellow;
+            border-radius: 4px;
+        }
+        #uncookedPizza{
+            display: none;
+            border: 3px solid black;
+             padding: 10px;
+             background-color:greenyellow;
+             border-radius: 4px;
+        }
+        #unevenToppingsPizza{
+            display: none;
+            border: 3px solid black;
+            padding: 10px;
+            background-color:greenyellow;
+            border-radius: 4px;
+        }
+        div {
+            padding-top:20px;
+        }
+   </style>
+</head>
+<body>
+   <div class="buttons">
+   <input id="upload" type="file" name="fileToUpload" id="fileToUpload">
+        <input id="submitUpload" type="submit" value="Upload Image" name="submit">
+   </div>
+   <div class="results">
+
+    <div><p id="goodPizza">Good Pizza!!</p></div>
+    <div><p id="thickCrustPizza">Thick Crust Pizza </p></div> 
+    <div><p id="burntPizza">Burnt Pizza</p></div>
+    <div><p id="uncookedPizza">Uncooked Pizza</p></div>
+    <div><p id="unevenToppingsPizza">Uneven Toppings Pizza</p></div>
+   </div>
+</body>
+</html>
